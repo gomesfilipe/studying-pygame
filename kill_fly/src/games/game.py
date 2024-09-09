@@ -5,19 +5,14 @@ from src.game_objects.game_object import GameObject
 from src.scenes.scene import Scene
 
 class Game(ABC):
-  def __init__(self, scene: Scene) -> None:
+  def __init__(self, scene: Scene, game_objects: List[GameObject]) -> None:
     pygame.init()
     self._scene = scene
-    self._game_objects: List[GameObject] = []
+    self._game_objects: List[GameObject] = game_objects
     self._stop: bool = False
 
   def _should_stop(self) -> None:
     return self._stop
-
-  @abstractmethod
-  def _build(self) -> None:
-    pass
-
 
   @abstractmethod
   def _handle_event(self, event: pygame.event.Event) -> None:
@@ -25,7 +20,6 @@ class Game(ABC):
 
   def run(self):
     self._scene.start_scene()
-    self._build()
     screen = self._scene.get_screen()
 
     for game_object in self._game_objects:

@@ -30,6 +30,7 @@ class FlyGameObject(GameObject):
     self._vy: Optional[float] = None
     self._time_to_alive: Optional[float] = None
 
+  @GameObject._start_decorator
   def start(self) -> None:
     self._current_image = self._images['alive']
     self._x, self._y, self._theta = self.__random_position()

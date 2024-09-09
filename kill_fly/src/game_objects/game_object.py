@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, Callable
 from src.scenes.scene import Scene
 import pygame
 
@@ -11,9 +11,15 @@ class GameObject(ABC):
 
     self._images: Dict[str, pygame.Surface] = {}
 
-    for sprite_name, value in self._sprites.items():
-      path, size = value
-      self._images[sprite_name] = self._read_image(path, size)
+  def _start_decorator(func: Callable) -> Callable:
+    def initialize_images(self: 'GameObject') -> None:
+      for sprite_name, value in self._sprites.items():
+        path, size = value
+        self._images[sprite_name] = self._read_image(path, size)
+
+      func(self)
+
+    return initialize_images
 
   @abstractmethod
   def start(self) -> None:
