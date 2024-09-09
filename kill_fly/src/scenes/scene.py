@@ -11,8 +11,5 @@ class Scene(ABC):
   def start_scene(self) -> None:
     pass
 
-  def render_scene(self) -> None:
-    pygame.display.flip()
-
   def get_screen(self) -> Optional[pygame.Surface]:
     return self._screen

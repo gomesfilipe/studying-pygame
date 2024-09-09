@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Callable
 from src.game_objects.game_object import GameObject
 import random
 import math
@@ -15,15 +15,14 @@ class FlyGameObject(GameObject):
       delta_time: int,
       dead_time: int,
       velocity: float,
+      layers: List[str] = [],
     ) -> None:
-    super().__init__(sprites, scene)
+    super().__init__(sprites, scene, layers)
 
     self._delta_time = delta_time
     self._dead_time = dead_time
     self._velocity = velocity
 
-    self._x: Optional[float] = None
-    self._y: Optional[float] = None
     self._theta: Optional[float] = None
     self._is_dead: Optional[float] = None
     self._vx: Optional[float] = None
@@ -60,10 +59,18 @@ class FlyGameObject(GameObject):
     if self._is_dead and time.time() >= self._time_to_alive:
       self._is_dead = False
       self._x, self._y, self._theta = self.__random_position()
+      self._current_image = self._images['alive']
 
   def update_scene(self) -> None:
     screen = self._scene.get_screen()
     screen.blit(self._current_image, (self._x, self._y))
+
+  def on_collide(self, other: GameObject, layer: str) -> None:
+    handlers: Dict[str, Callable] = {
+      'collision': self.__handle_collision_layer,
+    }
+
+    handlers[layer]()
 
   def __random_theta(self) -> float:
     return math.radians(random.uniform(0, 360))
@@ -75,3 +82,9 @@ class FlyGameObject(GameObject):
     theta = self.__random_theta()
 
     return x, y, theta
+
+  def __handle_collision_layer(self) -> None:
+    if not self._is_dead:
+      self._is_dead = True
+      self._time_to_alive = time.time() + self._dead_time
+      self._current_image = self._images['dead']
