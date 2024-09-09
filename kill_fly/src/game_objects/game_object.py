@@ -52,11 +52,12 @@ class GameObject(ABC):
     image = image.convert_alpha()
     return image
 
-  def _valid_position(self, i: float, j: float) -> bool:
+  def _valid_position(self, x: float, y: float) -> bool:
     screen = self._scene.get_screen()
+    display = self._scene.get_display()
 
-    return i > 0 and i + self._current_image.get_width() < screen.get_width() and \
-      j > 0 and j + self._current_image.get_height() < screen.get_height()
+    return x > 0 and x + self._current_image.get_width() < screen.get_width() and \
+      y > display.height() and y + self._current_image.get_height() < screen.get_height()
 
   def get_layers(self) -> List[str]:
     return self._layers

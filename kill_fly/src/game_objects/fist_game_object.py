@@ -31,7 +31,7 @@ class FistGameObject(GameObject):
   def start(self) -> None:
     self._current_image = self._images['fist']
     self._x = 0.0
-    self._y = 0.0
+    self._y = self._scene.get_display().height()
     self._theta = 0.0
 
   def update(self) -> None:
@@ -43,9 +43,10 @@ class FistGameObject(GameObject):
 
   def __vertical_move(self, angle: int) -> None:
     screen = self._scene.get_screen()
+    display = self._scene.get_display()
     self._theta = math.radians(angle)
     self._vy = self._velocity * math.sin(self._theta)
-    self._y = lerp(self._y + self._vy * self._delta_time, 0, screen.get_height() - self._current_image.get_height())
+    self._y = lerp(self._y + self._vy * self._delta_time, display.height(), screen.get_height() - self._current_image.get_height())
 
   def __horizontal_move(self, angle: int) -> None:
     screen = self._scene.get_screen()

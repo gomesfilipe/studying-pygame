@@ -3,11 +3,19 @@ from typing import Tuple, Optional, List, Dict
 from abc import ABC, abstractmethod
 from src.game_objects.game_object import GameObject
 from src.scenes.scene import Scene
+from src.interfaces.observer_interface import ObserverInterface
+from src.enums.event_enum import EventEnum
 
 class Game(ABC):
-  def __init__(self, scene: Scene, game_objects: List[GameObject]) -> None:
+  def __init__(
+      self,
+      scene: Scene,
+      game_objects: List[GameObject],
+      observers: List[ObserverInterface] = [],
+    ) -> None:
     self._scene = scene
     self._game_objects: List[GameObject] = game_objects
+    self._observers = observers
     self._stop: bool = False
 
     self._collider_groups: Dict[str, List[GameObject]] = {}
@@ -25,9 +33,13 @@ class Game(ABC):
   def _should_stop(self) -> None:
     return self._stop
 
-  @abstractmethod
   def _handle_event(self, event: pygame.event.Event) -> None:
-    pass
+    if event.type == pygame.QUIT:
+      self._stop = True
+
+    for observer in self._observers:
+      if event.type in observer.interested_events():
+        observer.handle_event(event.type)
 
   def run(self):
     pygame.init()
@@ -53,9 +65,12 @@ class Game(ABC):
               colliders[i].on_collide(colliders[j], layer)
               colliders[j].on_collide(colliders[i], layer)
 
+              pygame.event.post(pygame.event.Event(EventEnum.COLLISION.value))
+
       for game_object in self._game_objects:
         game_object.update_scene()
 
+      self._scene.update_scene()
       pygame.display.flip()
 
     pygame.quit()

@@ -77,8 +77,10 @@ class FlyGameObject(GameObject):
 
   def __random_position(self) -> Tuple[float, float, float]:
     screen = self._scene.get_screen()
+    display = self._scene.get_display()
+
     x = random.uniform(0, screen.get_width() - self._current_image.get_width())
-    y = random.uniform(0, screen.get_height() - self._current_image.get_height())
+    y = random.uniform(display.height(), screen.get_height() - self._current_image.get_height())
     theta = self.__random_theta()
 
     return x, y, theta
@@ -88,3 +90,6 @@ class FlyGameObject(GameObject):
       self._is_dead = True
       self._time_to_alive = time.time() + self._dead_time
       self._current_image = self._images['dead']
+
+  def is_colliding(self, other: GameObject) -> bool:
+    return super().is_colliding(other) and not self._is_dead
