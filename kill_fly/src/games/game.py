@@ -6,7 +6,7 @@ from src.scenes.scene import Scene
 from src.interfaces.observer_interface import ObserverInterface
 from src.enums.event_enum import EventEnum
 
-class Game(ABC):
+class Game(ObserverInterface):
   def __init__(
       self,
       scene: Scene,
@@ -15,7 +15,7 @@ class Game(ABC):
     ) -> None:
     self._scene = scene
     self._game_objects: List[GameObject] = game_objects
-    self._observers = observers
+    self._observers = observers + [self]
     self._stop: bool = False
 
     self._collider_groups: Dict[str, List[GameObject]] = {}
@@ -33,10 +33,20 @@ class Game(ABC):
   def _should_stop(self) -> None:
     return self._stop
 
-  def _handle_event(self, event: pygame.event.Event) -> None:
-    if event.type == pygame.QUIT:
-      self._stop = True
+  def handle_event(self, event: int) -> None:
+    handlers = {
+      EventEnum.QUIT.value: self.__handle_quit_event
+    }
 
+    handlers[event]()
+
+  def __handle_quit_event(self) -> None:
+    self._stop = True
+
+  def interested_events(self) -> List[int]:
+    return [pygame.QUIT]
+
+  def _handle_event(self, event: pygame.event.Event) -> None:
     for observer in self._observers:
       if event.type in observer.interested_events():
         observer.handle_event(event.type)
